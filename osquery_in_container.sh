@@ -12,6 +12,6 @@ docker run --rm --detach --name vulnerable-openssl \
 # Sleep long enough for OpenSSL to start its work
 sleep 2
 # Run osqueryi inside the container
-docker exec -it vulnerable-openssl osqueryi "${OSQUERY_QUERY}"
+docker exec -it vulnerable-openssl osqueryi "${OSQUERY_QUERY_FOR_SAME_NAMESPACE}"
 # Stop current execution
 docker stop vulnerable-openssl

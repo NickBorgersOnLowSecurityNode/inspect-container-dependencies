@@ -5,7 +5,7 @@ then
 fi
 
 VULNERABLE_OPENSSL_CONTAINER_IMAGE=clojure:temurin-17-lein-2.9.8-jammy
-OSQUERY_QUERY=$(cat <<EOF
+OSQUERY_QUERY_FOR_SAME_NAMESPACE=$(cat <<EOF
 WITH FIRST_QUERY AS (SELECT DISTINCT
     proc.path,
     proc.cmdline,
