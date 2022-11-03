@@ -18,8 +18,22 @@ overall_config_line=$(grep overlay /proc/$pid/mountinfo)
 just_workdir_line=$(echo $overall_config_line | grep -Po 'workdir=([a-zA-Z0-9\/].*)(?=\/[a-z].+,)')
 # This gets only the match group (removes the workdir= we keyed off but didn't want)
 just_directory=$(echo $just_workdir_line | grep -Po '\/.*')
-# Show container's merged filesystem
-ls -al ${just_directory}/merged/
+# Run OSQuery to get matching mmap_paths
+memory_map_paths=$(sudo osqueryi --header=false --csv --separator ',' "$(cat <<EOF
+SELECT DISTINCT
+    path
+FROM process_memory_map WHERE pid = ${pid} GROUP BY path
+EOF
+)")
+echo "Files to run yara rule against are:"
+# Iterate over lines of output from osquery
+while IFS= read -r this_memory_map_path; do
+    # If the first character isn't a [ or "
+    if [[ ${this_memory_map_path::1} != "[" && ${this_memory_map_path::1} != "\"" ]]
+    then
+        echo ${just_directory}${this_memory_map_path}
+    fi
+done <<< "${memory_map_paths}"
 
 # Stop current execution
 docker stop vulnerable-openssl
