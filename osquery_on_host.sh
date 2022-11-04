@@ -25,13 +25,26 @@ SELECT DISTINCT
 FROM process_memory_map WHERE pid = ${pid} GROUP BY path
 EOF
 )")
-echo "Files to run yara rule against are:"
+
 # Iterate over lines of output from osquery
 while IFS= read -r this_memory_map_path; do
-    # If the first character isn't a [ or "
+    # If the first character isn't a [ or " we assume this is a file
     if [[ ${this_memory_map_path::1} != "[" && ${this_memory_map_path::1} != "\"" ]]
     then
-        echo ${just_directory}${this_memory_map_path}
+	# Use OSqueryi to invoke the yara rule against this file, note we have to add /merged between the directory and path from the memory map
+        sudo osqueryi "$(cat <<EOF
+SELECT path, matches FROM yara WHERE path = "${just_directory}/merged${this_memory_map_path}" AND
+sigrule = 'rule openssl_3 {
+        strings:
+                \$re1 = /OpenSSL\s3\.[0-6]{1}\.[0-9]{1}[a-z]{,1}/
+
+        condition:
+                \$re1
+ }
+'
+AND count > 0;
+EOF
+)"
     fi
 done <<< "${memory_map_paths}"
 
