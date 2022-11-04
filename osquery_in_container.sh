@@ -12,6 +12,7 @@ docker run --rm --detach --name vulnerable-openssl \
 # Sleep long enough for OpenSSL to start its work
 sleep 2
 # Run osqueryi inside the container
+# This query is from Akamai: https://www.akamai.com/blog/security-research/openssl-vulnerability-how-to-effectively-prepare#query
 docker exec -it vulnerable-openssl osqueryi "$(cat <<EOF
 WITH FIRST_QUERY AS (SELECT DISTINCT
     proc.path,
