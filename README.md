@@ -31,12 +31,12 @@ The procedure was:
 1. Stop the OpenSSL process and container
 
 ### Moving towards including running containers in the check
-This is represented by [osquery_on_host.sh](osquery_on_host.sh) which tries to run from the host and accomplish the scanning against running containers.
+This is represented by [osquery_on_host_with_mount_namespace_mapping.sh](osquery_on_host_with_mount_namespace_mapping.sh) which tries to run from the host and accomplish the scanning against running containers.
 This uses the same yara rule from Akamai but is an attempt to run this for all processes on a given host including Docker containers.
 
 The output of this script will be like:
 ```
-nborgers@devrestricted-nborgers:~/code/inspect-container-dependencies$ ./osquery_on_host.sh
+nborgers@devrestricted-nborgers:~/code/inspect-container-dependencies$ ./osquery_on_host_with_mount_namespace_mapping.sh
 Error response from daemon: No such container: vulnerable-openssl
 b44ce18671a5af1d11695135f1d7337a6769bb4db0d52c59644cb3b91b3744a9
 +--------------------------------------------------------------------------------------------------------------+-----------+
