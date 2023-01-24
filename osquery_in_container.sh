@@ -20,13 +20,13 @@ WITH FIRST_QUERY AS (SELECT DISTINCT
     proc.pid,
     mmap.path AS mmap_path
 FROM process_memory_map AS mmap
-LEFT JOIN processes AS proc USING(pid))
+LEFT JOIN processes AS proc USING(pid) GROUP BY mmap_path)
 SELECT pid, cmdline, mmap_path
 FROM FIRST_QUERY
 JOIN yara ON yara.path = FIRST_QUERY.mmap_path
 WHERE sigrule = 'rule openssl_3 {
         strings:
-                \$re1 = /OpenSSL\s3\.[0-6]{1}\.[0-9]{1}[a-z]{,1}/
+                \$re1 = /\^OpenSSL\s3\.[0-6]{1}\.[0-9]{1}[a-z]{,1}/
 
         condition:
                 \$re1
