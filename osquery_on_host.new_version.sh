@@ -9,9 +9,9 @@ docker stop vulnerable-openssl || true
 docker run --rm --detach --name vulnerable-openssl ${VULNERABLE_OPENSSL_CONTAINER_IMAGE} openssl speed
 # Sleep long enough for OpenSSL to start its work
 sleep 2
-# Run osqueryi right on the host (this doesn't succeed)
+# Run freshly built version of osquery (this does work)
 # This query is from Akamai: https://www.akamai.com/blog/security-research/openssl-vulnerability-how-to-effectively-prepare#query
-osqueryd -S "$(cat <<EOF
+/home/nborgers/code/osquery/build/osquery/osqueryd -S "$(cat <<EOF
 WITH FIRST_QUERY AS (SELECT DISTINCT
     proc.path,
     proc.cmdline,
@@ -22,6 +22,7 @@ LEFT JOIN processes AS proc USING(pid) GROUP BY mmap_path)
 SELECT pid, cmdline, mmap_path
 FROM FIRST_QUERY
 JOIN yara ON yara.path = FIRST_QUERY.mmap_path
+WHERE pid_with_namespace = FIRST_QUERY.pid
 AND sigrule = 'rule openssl_3 {
         strings:
                 \$re1 = /OpenSSL\s3\.[0-6]{1}\.[0-9]{1}[a-z]{,1}/
